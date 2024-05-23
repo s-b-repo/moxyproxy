@@ -10,7 +10,7 @@ def scrape_proxies(url):
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             table = soup.find('table')
-            if table:
+            if table and table.tbody:
                 for row in table.tbody.find_all('tr'):
                     cols = row.find_all('td')
                     if len(cols) >= 2:
@@ -22,10 +22,19 @@ def scrape_proxies(url):
         print(f"Failed to scrape {url}: {e}")
     return proxies
 
+# Function to test a single proxy
+def test_proxy(proxy):
+    protocol, ip, port = proxy
+    try:
+        response = requests.get('https://www.example.com', proxies={protocol: f'{protocol}://{ip}:{port}'}, timeout=10)
+        return response.status_code == 200
+    except Exception:
+        return False
+
 # Function to test proxies
 def test_proxies(proxies):
     working_proxies = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         future_to_proxy = {executor.submit(test_proxy, proxy): proxy for proxy in proxies}
         for future in concurrent.futures.as_completed(future_to_proxy):
             proxy = future_to_proxy[future]
@@ -35,15 +44,6 @@ def test_proxies(proxies):
             except Exception as e:
                 print(f"Error testing proxy {proxy}: {e}")
     return working_proxies
-
-# Function to test a single proxy
-def test_proxy(proxy):
-    protocol, ip, port = proxy
-    try:
-        response = requests.get('https://www.example.com', proxies={protocol: f'{protocol}://{ip}:{port}'}, timeout=10)
-        return response.status_code == 200
-    except Exception:
-        return False
 
 # Function to read URLs from a text file
 def read_urls(file_path):
