@@ -1,12 +1,10 @@
-1.Install Node.js and npm: If you haven't already, download and install Node.js from nodejs.org.
+pip install PySocks
 
+Create a File proxy-servers.txt:
+List your HTTP proxy servers, one per line:
 
+make file
 
-mkdir my-proxy-server
-cd my-proxy-server
-npm init -y
-
-Install the http-proxy Library:
-Install the http-proxy package which is a popular library for creating proxy servers in Node.js.
-
-npm install http-proxy
+proxy1.example.com:8080
+proxy2.example.com:8080
+proxy3.example.com:8080
